@@ -1,5 +1,5 @@
 import React from 'react';
-import { getAllByTestId, render, rerender, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import Episodes from './Episodes';
 
 const episodes = [
@@ -13,12 +13,12 @@ const episodes = [
       airdate: '2016-07-15',
       airtime: '',
       airstamp: '2016-07-15T12:00:00+00:00',
-      runtime: 60,
+      runtime: 1,
       image: {
         medium: 'http://static.tvmaze.com/uploads/images/medium_landscape/67/168918.jpg',
         original: 'http://static.tvmaze.com/uploads/images/original_untouched/67/168918.jpg'
       },
-      summary: '<p>A young boy mysteriously disappears, and his panicked mother demands that the police find him. Meanwhile, the boy\'s friends conduct their own search, and meet a mysterious girl in the forest.</p>',
+      summary: 'summary',
       _links: {
         self: {
           href: 'http://api.tvmaze.com/episodes/553946'
@@ -46,61 +46,30 @@ const episodes = [
           href: 'http://api.tvmaze.com/episodes/909340'
         }
       }
-    },
-    {
-      id: 1576469,
-      url: 'http://www.tvmaze.com/episodes/1576469/stranger-things-3x01-chapter-one-suzie-do-you-copy',
-      name: 'Chapter One: Suzie, Do You Copy?',
-      season: 3,
-      number: 1,
-      type: 'regular',
-      airdate: '2019-07-04',
-      airtime: '',
-      airstamp: '2019-07-04T12:00:00+00:00',
-      runtime: 51,
-      image: {
-        medium: 'http://static.tvmaze.com/uploads/images/medium_landscape/204/510098.jpg',
-        original: 'http://static.tvmaze.com/uploads/images/original_untouched/204/510098.jpg'
-      },
-      summary: '<p>Things change over the summer: Jonathan, Nancy, Steve, and Billy get jobs; Dustin goes to science camp; El and Mike become an item; Lucas and Max almost become an item. Meanwhile, mysterious power outages plague Hawkins and rats start exploding.</p>',
-      _links: {
-        self: {
-          href: 'http://api.tvmaze.com/episodes/1576469'
-        }
-      }
-    },
-    {
-      id: 1752754,
-      url: 'http://www.tvmaze.com/episodes/1752754/stranger-things-4x01-chapter-one-the-hellfire-club',
-      name: 'Chapter One: The Hellfire Club',
-      season: 4,
-      number: 1,
-      type: 'regular',
-      airdate: '',
-      airtime: '',
-      airstamp: null,
-      runtime: 60,
-      image: null,
-      summary: null,
-      _links: {
-        self: {
-          href: 'http://api.tvmaze.com/episodes/1752754'
-        }
-      }
     }
   ]
 
-  test('', () => {
-      
-  })
-// test('rerenders correctly with list of episodes displayed', () => {
-//   // arrange - render the component and set up mock data
-//   render(<Episodes episodes={[]}/>)
+  test('Epsiodes renders without errors', () => {
+      render(<Episodes episodes={[]}/>);
+  });
 
-//   // act - rerender the component with episodes data passed in
-//   rerender(<Episodes episodes={episodes} />)
-//   const episodes = getAllByTestId(/episodes/i)
+  test('rerenders without errors when props are changed', () => {
+      const { rerender } = render(<Episodes episodes={[]} />);
+      rerender(<Episodes episodes={episodes} />);
+  });
 
-//   // assert 
-//   expect(episodes).toHaveLength(4);
-// });
+  test('renders data from API', () => {
+      render(<Episodes episodes={episodes}/>)
+
+      const episode = screen.getAllByTestId(/episode/i);
+      const header = screen.getByText(/season 1, episode 1/i);
+      const title = screen.getByText(/chapter one: the vanishing of will byers/i);
+      const summary = screen.getByText(/summary/i);
+      const runTime = screen.getByText(/1 minutes/i);
+
+      expect(episodes.length).toBe(2);
+      expect(header).toBeInTheDocument();
+      expect(title).toBeInTheDocument();
+      expect(summary).toBeInTheDocument();
+      expect(runTime).toBeInTheDocument();
+  });

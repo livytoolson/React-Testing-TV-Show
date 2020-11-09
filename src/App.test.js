@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor, screen, getAllByTestId } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import App from './App';
@@ -246,7 +246,7 @@ test('fetches episode data and renders dropdown', async () => {
     userEvent.click(seasonOne);
 
     await waitFor(() => {
-        const episodes = screen.getAllByTestId("episodes");
+        const episodes = screen.getAllByTestId("episode");
         expect(episodes.length).toBe(2);
     });
 });
