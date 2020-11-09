@@ -1,44 +1,62 @@
 import React from "react";
-import { render, fireEvent, waitFor, wait, screen, within, getNodeText, getByText, findByText } from "@testing-library/react";
-import { fetchShow as mockFetchShow } from "./api/fetchShow";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from '@testing-library/user-event'
-import '@testing-library/jest-dom';
 import App from "./App";
+import { fetchShow as mockFetchShow } from "./api/fetchShow";
 
-// jest.mock(mockFetchShow);
-// jest.mock("./api/fetchShow.js");
+jest.mock("./api/fetchShow.js");
+const data = {
+	data: {
+		name: "Show 1",
+		summary: "Summary 1",
+		image: { original: "original_image", medium: "medium_image", },
+		_embedded: {
+			episodes: [
+				{
+					id: 1,
+					url: "url1",
+					name: "Episode 1",
+					season: 1,
+					number: 1,
+					summary: "Ep_Summary_1",
+					runtime: 1,
+					image: { medium: "ep1_med_image", }
+				},
+				{
+					id: 2,
+					url: "url2",
+					name: "Episode 2",
+					season: 1,
+					number: 2,
+					summary: "Ep_Summary_2",
+					runtime: 2,
+					image: { medium: "ep2_med_image", }
+				}
+			],
+		}
+	},
+}
 
-// beforeEach(() => {
-// const { container } = render(<App />)
-// jest.resetAllMocks();
-// const utils = render(<App />);
-// const { getByText, findByText, fireEvent, container } = utils;1
+// test("renders without errors", () => {
+// 	mockFetchShow.mockResolvedValueOnce(data);
+// 	render(<App />);
 // })
 
-// function buildEpisode(overrides) {
-// 	return {
-// 		"id": 553946,
-// 		"url": "http://www.tvmaze.com/episodes/553946/stranger-things-1x01-chapter-one-the-vanishing-of-will-byers", "name": "Chapter One: The Vanishing of Will Byers", "season": 1, "number": 1, "type": "regular", "airdate": "2016-07-15", "airtime": "", "airstamp": "2016-07-15T12:00:00+00:00", "runtime": 60, "image": { "medium": "http://static.tvmaze.com/uploads/images/medium_landscape/67/168918.jpg", "original": "http://static.tvmaze.com/uploads/images/original_untouched/67/168918.jpg" }, "summary": "<p>A young boy mysteriously disappears, and his panicked mother demands that the police find him. Meanwhile, the boy's friends conduct their own search, and meet a mysterious girl in the forest.</p>",
-// 		"_links": { "self": { "href": "http://api.tvmaze.com/episodes/553946" } },
-// 		...overrides,
-// 	}
-// }
+test("renders episodes from api", async () => {
+	jest.resetAllMocks();
+	// render(<App />);
+	mockFetchShow.mockResolvedValueOnce(data);
 
-test("renders episodes from API", async () => {
-	const { container } = render(<App />)
+	render(<App />);
+	expect(mockFetchShow).toHaveBeenCalledTimes(1);
+	const dropdown = await screen.findByText(/select a season/i);
+	expect(dropdown).toBeInTheDocument();
+	userEvent.click(dropdown);
+	const seasonOne = await screen.findByText(/season 1/i)
+	userEvent.click(seasonOne);
+
 	await waitFor(() => {
-		expect(container.querySelector("div.Dropdown-root")).toBeInTheDocument();
+		const episodes = screen.getAllByTestId("episode");
+		expect(episodes.length).toBe(2);
 	})
-	// const dropdownRoot = container.querySelector("div.Dropdown-root");
-	const dropdownSelector = container.querySelector("div.Dropdown-placeholder");
-	userEvent.click(dropdownSelector);
-
-	const option1 = await screen.findByRole('option', { name: /season 1/i });
-	userEvent.selectOptions(option1);
-
-	expect(container.querySelector("div.episodes")).toBeInTheDocument();
-	expect(screen.getByRole('img', { name: /chapter one: the vanishing of will byers/i })).toBeInTheDocument();
-	expect(screen.getByText(/season 1, episode 1/i)).toBeInTheDocument();
-	expect(screen.getByText(/season 1, episode 1/i)).toHaveTextContent(/season 1, episode 1/i);
-	expect(screen.getByRole('heading', { name: /chapter one: the vanishing of will byers/i })).toHaveTextContent(/chapter one: the vanishing of will byers/i);
 });
